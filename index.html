@@ -11,7 +11,6 @@
 <meta name="apple-mobile-web-app-title" content="Monstro">
 <title>Monstro</title>
 <style>
-  @font-face { font-family: 'Pangolin'; src: url(assets/fonts/pangolin.woff2) format('woff2'); font-weight: 400; font-display: swap; }
   @font-face { font-family: 'Grenze Gotisch'; src: url(assets/fonts/grenze-gotisch.woff2) format('woff2'); font-weight: 600; font-display: swap; }
   :root {
     --display: 'Grenze Gotisch', Georgia, serif;   /* destaque: mês, dias, títulos, abas */
@@ -24,7 +23,7 @@
   }
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   html { background: #140d10; }
-  body { margin: 0; color: var(--ink); font: 17px/1.4 "Pangolin", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  body { margin: 0; color: var(--ink); font: 16px/1.4 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
   body::before { content: ''; position: fixed; inset: 0; z-index: -1; background: #140d10 url(assets/bg.jpg) center / cover no-repeat; }
   .app { max-width: 480px; margin: 0 auto; padding: calc(16px + env(safe-area-inset-top)) 16px calc(var(--barh) + 170px + env(safe-area-inset-bottom)); }
   h1 { font: 600 26px/1.1 var(--display); margin: 0 0 12px; }
