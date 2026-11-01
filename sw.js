@@ -1,8 +1,8 @@
 // Rede primeiro (pega atualizações), cache como reserva para funcionar offline.
-const CACHE = 'ciclo-v2';
+const CACHE = 'ciclo-v3';
 const ASSETS = [
   './', 'index.html', 'manifest.json', 'icon-192.png', 'icon-512.png', 'icon-maskable-512.png', 'apple-touch-icon.png',
-  'assets/bg.jpg', 'assets/bar.png', 'assets/big-square.png', 'assets/sq1.png', 'assets/sq2.png', 'assets/sq3.png',
+  'assets/bg.jpg', 'assets/bar.png', 'assets/big-square.png', 'assets/big-square-dark.png', 'assets/sq2-dark.png', 'assets/sq1.png', 'assets/sq2.png', 'assets/sq3.png',
   'assets/head.png', 'assets/eyes-open.png', 'assets/eyes-closed.png', 'assets/mouth.png', 'assets/hand.png',
 ];
 
