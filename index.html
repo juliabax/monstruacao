@@ -266,11 +266,13 @@ function renderBackup() {
       <div><strong>${plural(n, 'registro', 'registros')}</strong> neste aparelho</div>
       <div class="muted">${last ? 'Último backup: ' + fmt(last, true) : 'Nenhum backup feito ainda.'}</div>
     </div>
-    <button class="btn primary" id="exp">Exportar / compartilhar backup</button>
+    <button class="btn primary" id="exp">Enviar backup (e-mail, Drive…)</button>
+    <button class="btn" id="dl">Baixar arquivo</button>
     <button class="btn" id="imp">Restaurar de um arquivo</button>
-    <p class="muted">O backup é um arquivo .json. Ao exportar, escolha para onde enviar: Google Drive, e-mail, WhatsApp… Guarde em um lugar seguro.
-    Seus dados ficam só neste aparelho; nada é enviado para servidor algum.</p>`;
-  $('exp').onclick = exportBackup;
+    <p class="muted">"Enviar backup" abre o menu do celular para você escolher e-mail, Google Drive, WhatsApp… O arquivo vai como .txt, e dá para restaurá-lo normalmente aqui.
+    Guarde em um lugar seguro. Seus dados ficam só neste aparelho; nada é enviado para servidor algum.</p>`;
+  $('exp').onclick = shareBackup;
+  $('dl').onclick = downloadBackup;
   $('imp').onclick = () => $('fileIn').click();
 }
 
@@ -333,23 +335,29 @@ function openSheet(d) {
 /* ---------- backup ---------- */
 function markBackup() { try { localStorage.setItem(BKEY, todayISO()); } catch (e) {} renderAll(); }
 
-async function exportBackup() {
-  const data = { app: 'meu-ciclo', version: 1, exportedAt: new Date().toISOString(), periods: state.periods };
-  const json = JSON.stringify(data, null, 2);
-  const name = `meu-ciclo-backup-${todayISO()}.json`;
-  // o Chrome só aceita alguns tipos no compartilhamento; tenta json e depois text/plain
-  for (const type of ['application/json', 'text/plain']) {
-    try {
-      const file = new File([json], name, { type });
-      if (navigator.canShare && navigator.canShare({ files: [file] })) {
-        await navigator.share({ files: [file], title: 'Backup do Monstro' });
-        markBackup(); toast('Backup compartilhado'); return;
-      }
-    } catch (e) { if (e.name === 'AbortError') return; }
+function backupJSON() {
+  return JSON.stringify({ app: 'monstro', version: 1, exportedAt: new Date().toISOString(), periods: state.periods }, null, 2);
+}
+
+// O Chrome do Android só compartilha arquivos de alguns tipos (.txt sim, .json não),
+// então o arquivo compartilhado é .txt com o mesmo conteúdo do .json.
+async function shareBackup() {
+  if (!navigator.share) { toast('Este navegador não consegue compartilhar. Use "Baixar arquivo".'); return; }
+  const json = backupJSON(), title = 'Backup do Monstro';
+  try {
+    const file = new File([json], `monstro-backup-${todayISO()}.txt`, { type: 'text/plain' });
+    if (navigator.canShare && navigator.canShare({ files: [file] })) await navigator.share({ files: [file], title });
+    else await navigator.share({ title, text: json });   // sem anexo: o backup vai como texto
+    markBackup(); toast('Backup compartilhado');
+  } catch (e) {
+    if (e.name !== 'AbortError') toast('Não deu para compartilhar (' + e.name + '). Use "Baixar arquivo".');
   }
+}
+
+function downloadBackup() {
   const a = document.createElement('a');
-  a.href = URL.createObjectURL(new Blob([json], { type: 'application/json' }));
-  a.download = name; document.body.appendChild(a); a.click(); a.remove();
+  a.href = URL.createObjectURL(new Blob([backupJSON()], { type: 'application/json' }));
+  a.download = `monstro-backup-${todayISO()}.json`; document.body.appendChild(a); a.click(); a.remove();
   setTimeout(() => URL.revokeObjectURL(a.href), 4000);
   markBackup(); toast('Arquivo baixado');
 }
