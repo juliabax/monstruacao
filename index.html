@@ -125,10 +125,7 @@
   .chara.sad .pupils { animation: none; transform: translate(-5%, 8%); transition: transform .4s; }
   .chara.sad .eyes-lids { animation: none; }
   .chara .tears { position: absolute; inset: 0; pointer-events: none; }
-  .chara .tear { position: absolute; width: 10%; opacity: 0; animation: tx var(--dur) linear var(--delay) both; }
-  .chara .tear img { position: static; display: block; width: 100%; height: auto; animation: ty var(--dur) ease-in var(--delay) both; }
-  @keyframes tx { 0% { transform: translateX(0); opacity: 0; } 10% { opacity: 1; } 80% { opacity: 1; } 100% { transform: translateX(var(--dx)); opacity: 0; } }
-  @keyframes ty { 0% { transform: translateY(0) rotate(0deg) scale(.6); } 22% { transform: translateY(-10px) rotate(calc(var(--r) * .3)) scale(1); } 100% { transform: translateY(var(--dy)) rotate(var(--r)) scale(1); } }
+  .chara .tear { position: absolute; width: 10%; height: auto; opacity: 0; }   /* movida por JS (Web Animations): a ponta aponta para trás do movimento */
   .chara.happy .eyes-lids { animation: none; }
   .chara.wink .eyes-lids { animation: wink .95s ease-in-out both; }   /* remate: duas piscadinhas ao voltar ao normal */
   @keyframes wink { 0%, 100% { opacity: 0; } 12%, 24% { opacity: 1; } 38%, 52% { opacity: 0; } 64%, 78% { opacity: 1; } 90% { opacity: 0; } }
@@ -561,10 +558,19 @@ function sadMoment() {
   if (reduceMotion) return;
   const box = document.createElement('div'); box.className = 'tears'; box.setAttribute('aria-hidden', 'true');
   for (let i = 0; i < 10; i++) {   // alterna olho esquerdo/direito; cada lágrima sobe um pouco, abre para o lado e cai
-    const left = i % 2 === 0, sgn = left ? -1 : 1, t = document.createElement('span');
-    t.className = 'tear';
-    t.style.cssText = `left:${left ? 36 : 73}%;top:${left ? 60 : 53}%;--dx:${Math.round(sgn * (35 + Math.random() * 80))}px;--dy:${Math.round(45 + Math.random() * 90)}px;--r:${Math.round(sgn * (20 + Math.random() * 50))}deg;--dur:${(1.1 + Math.random() * .7).toFixed(2)}s;--delay:${(.25 + i * .33 + Math.random() * .2).toFixed(2)}s`;
-    t.innerHTML = '<img src="assets/tear.png" alt="">'; box.appendChild(t);
+    const left = i % 2 === 0, sgn = left ? -1 : 1, t = new Image();
+    t.src = 'assets/tear.png'; t.alt = ''; t.className = 'tear';
+    t.style.left = (left ? 36 : 73) + '%'; t.style.top = (left ? 60 : 53) + '%';
+    const dx = sgn * (40 + Math.random() * 80), dy = 50 + Math.random() * 90, up = 26 + Math.random() * 16, N = 16, frames = [];
+    for (let k = 0; k <= N; k++) {
+      const u = k / N, x = dx * u, y = -up * u + (dy + up) * u * u;                 // trajetória em arco
+      const vx = dx, vy = -up + 2 * (dy + up) * u;                                  // velocidade naquele ponto
+      const ang = Math.atan2(-vx, vy) * 180 / Math.PI;                              // ponta da gota para trás do movimento
+      frames.push({ offset: u, opacity: u < .08 ? u / .08 : u > .8 ? (1 - u) / .2 : 1,
+        transform: `translate(-50%, -50%) translate(${x.toFixed(1)}px, ${y.toFixed(1)}px) rotate(${ang.toFixed(1)}deg) scale(${(.6 + .4 * Math.min(1, u * 4)).toFixed(2)})` });
+    }
+    t.animate(frames, { duration: 1100 + Math.random() * 700, delay: 250 + i * 330 + Math.random() * 200, fill: 'both', easing: 'linear' });
+    box.appendChild(t);
   }
   c.appendChild(box); setTimeout(() => box.remove(), 5800);
 }
