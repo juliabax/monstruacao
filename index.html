@@ -63,7 +63,7 @@
   .day, .nav .title, .stat, h1, .sheet h2, .tabbar em { font-variant-numeric: lining-nums; }   /* números alinhados na linha, sem os "antigos" do gótico */
   .day.pred::after { content: ''; position: absolute; inset: 0; z-index: -1; -webkit-mask: var(--sq) center / 100% 100% no-repeat; mask: var(--sq) center / 100% 100% no-repeat; background: repeating-linear-gradient(135deg, transparent 0 4px, rgba(255, 255, 255, .09) 4px 8px); }   /* previsão: mesmo tom dos dias comuns, com listras discretas mais claras */
   .day.today::before { filter: drop-shadow(0 0 2px #fff) drop-shadow(0 0 7px rgba(255, 190, 210, .9)); }
-  .day.future { color: #9a8890; }
+  .day.future { color: #6c5b64; }   /* dias que ainda não chegaram: números apagados */
   .day span { position: relative; }
   .day .dot { position: absolute; bottom: 6px; left: 50%; width: 6px; height: 6px; margin-left: -3px; border-radius: 50%; background: var(--accent); }
   .day.edge .dot { background: #1a1416; }
