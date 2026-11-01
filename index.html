@@ -100,7 +100,9 @@
   .chara .eyes { position: absolute; left: 30.4%; top: 26.5%; width: 49.6%; aspect-ratio: 428 / 274; }
   .chara .eyes .eyes-base, .chara .eyes .eyes-lids, .chara .eyes .eyes-happy { left: 0; top: 0; width: 100%; height: 100%; }
   .chara .eyes-happy { opacity: 0; transition: opacity .15s; }
-  .chara .eyes .eyes-sad { left: 0; top: 0; width: 100%; height: auto; opacity: 0; transition: opacity .25s; }   /* olhos tristes (com as pálpebras caídas), por baixo das pupilas */   /* olhos felizes (arcos) quando ele sorri */
+  /* olhos tristes (com as pálpebras caídas), por baixo das pupilas. A imagem é 18 de 274 mais alta (a pálpebra no topo): sobe -6,57% para o branco do olho cair no mesmo lugar do olho normal */
+  .chara .eyes .eyes-sad { left: 0; top: -6.57%; width: 100%; height: auto; opacity: 0; transition: opacity .25s; }
+  .chara.sad .eyes-base { opacity: 0; transition: opacity 0s .25s; }   /* o olho aberto some só depois que o triste termina de aparecer (sem dar um "buraco" na troca) e volta na hora na saída */   /* olhos felizes (arcos) quando ele sorri */
   .chara .eyes-lids { opacity: 0; animation: blink 5.5s infinite; }                /* pálpebras: ficam por cima das pupilas */
   .chara .pupils { position: absolute; inset: 0; animation: gaze 13s ease-in-out infinite; }
   .chara .pupil { width: 10.5%; height: auto; }
