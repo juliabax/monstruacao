@@ -60,8 +60,7 @@
   .day.mid::after { background: var(--mid); }
   .day.edge::after { background: var(--accent); }
   .day.edge { color: #1a1416; font-weight: 700; }
-  .day.pred::before { opacity: .6; }
-  .day.pred::after { background: #a24a68; }
+  .day.pred::after { background: repeating-linear-gradient(135deg, var(--box) 0 4px, #4a3841 4px 8px); }   /* previsão: mesmo tom dos dias comuns, com listras discretas */
   .day.today::before { filter: drop-shadow(0 0 2px #fff) drop-shadow(0 0 7px rgba(255, 190, 210, .9)); }
   .day.future { color: #9a8890; }
   .day span { position: relative; }
@@ -149,7 +148,7 @@
     <div class="legend">
       <span><i style="background:var(--accent)"></i>Início / fim</span>
       <span><i style="background:var(--mid)"></i>Menstruada</span>
-      <span><i style="background:#8f4f63"></i>Previsão</span>
+      <span><i style="background:repeating-linear-gradient(135deg,#3a2a31 0 3px,#5a4650 3px 6px)"></i>Previsão</span>
       <span><i style="border:2px solid #fff;box-shadow:0 0 6px rgba(255,190,210,.9)"></i>Hoje</span>
       <span><i style="background:var(--accent);border-radius:50%;width:7px;height:7px;margin:0 6px 0 2px"></i>Anotação</span>
     </div>
