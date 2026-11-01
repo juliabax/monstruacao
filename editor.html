@@ -110,9 +110,9 @@
 <script>
 'use strict';
 const $ = id => document.getElementById(id);
-const KEY = 'monstro.editor.v1';
+const KEY = 'monstro.editor.v2';
 // valores que o app usa hoje
-const APP = { ml: 52, mt: 68, mw: 21.5, lx: 36, ly: 60, rx: 73, ry: 53 };
+const APP = { ml: 51.3, mt: 76.2, mw: 21.5, lx: 39.5, ly: 79.7, rx: 79.1, ry: 67.8 };
 let v = { ...APP };
 try { const s = JSON.parse(localStorage.getItem(KEY)); if (s && Object.keys(APP).every(k => typeof s[k] === 'number')) v = s; } catch (e) {}
 
