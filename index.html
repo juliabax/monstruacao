@@ -94,6 +94,7 @@
     bottom: calc(var(--barh) + env(safe-area-inset-bottom) - 6px); }
   .chara { position: absolute; right: 5%; bottom: 0; width: min(40vw, 191px); aspect-ratio: 580 / 344; }
   .chara img { position: absolute; display: block; height: auto; }
+  .chara .face { position: absolute; inset: 0; transform-origin: 50% 95%; animation: idle 5.2s ease-in-out infinite; }   /* cabeça respirando; as mãos ficam paradas */
   .chara .head { left: 0; top: 0; width: 100%; }
   .chara .eyes { left: 30.4%; top: 26.5%; width: 49.6%; }
   .chara .eyes.closed { opacity: 0; animation: blink 5.5s infinite; }
@@ -101,8 +102,9 @@
   .chara .hand { top: 82.6%; width: 26%; }
   .chara .hand.l { left: 13.3%; }
   .chara .hand.r { left: 79%; transform: scaleX(-1); }
+  @keyframes idle { 0%, 100% { transform: translateY(1px) rotate(0deg); } 50% { transform: translateY(-5px) rotate(-1.3deg); } }
   @keyframes blink { 0%, 92%, 100% { opacity: 0; } 94%, 97% { opacity: 1; } }
-  @media (prefers-reduced-motion: reduce) { .chara .eyes.closed { animation: none; } }
+  @media (prefers-reduced-motion: reduce) { .chara .eyes.closed, .chara .face { animation: none; } }
 
   .backdrop { position: fixed; inset: 0; background: rgba(0,0,0,.55); display: none; align-items: flex-end; justify-content: center; z-index: 10; }
   .backdrop.open { display: flex; }
@@ -161,10 +163,12 @@
 
 <div class="chara-wrap" aria-hidden="true">
   <div class="chara">
-    <img class="head" src="assets/head.png" alt="">
-    <img class="eyes open" src="assets/eyes-open.png" alt="">
-    <img class="eyes closed" src="assets/eyes-closed.png" alt="">
-    <img class="mouth" src="assets/mouth.png" alt="">
+    <div class="face">
+      <img class="head" src="assets/head.png" alt="">
+      <img class="eyes open" src="assets/eyes-open.png" alt="">
+      <img class="eyes closed" src="assets/eyes-closed.png" alt="">
+      <img class="mouth" src="assets/mouth.png" alt="">
+    </div>
     <img class="hand l" src="assets/hand.png" alt="">
     <img class="hand r" src="assets/hand.png" alt="">
   </div>
