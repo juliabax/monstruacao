@@ -56,16 +56,13 @@
   /* caixas pequenas: um desenho por dia; a cor do estado entra por multiplicação dentro do mesmo formato */
   .day { aspect-ratio: 1; min-height: 44px; border: 0; background: none; padding: 0; position: relative; isolation: isolate; font: 600 22px/1 var(--display); color: var(--paper-ink); }
   .day::before { content: ''; position: absolute; inset: 0; z-index: -1; background: var(--sq) center / 100% 100% no-repeat; }
-  .day.sq1 { --sq: url(assets/sq1.png); } .day.sq2 { --sq: url(assets/sq2.png); } .day.sq3 { --sq: url(assets/sq3.png); }
-  .day::after {
-    content: ''; background: var(--box); position: absolute; inset: 0; z-index: -1; mix-blend-mode: multiply;
-    -webkit-mask: var(--sq) center / 100% 100% no-repeat; mask: var(--sq) center / 100% 100% no-repeat;
-  }
-  .day.mid::after { background: var(--mid); }
-  .day.edge::after { background: var(--accent); }
+  /* uma imagem já pintada por estado (comum, menstruação, início/fim): sem camadas sobrepostas, sem fiapos claros na borda */
+  .day.sq1 { --sq: url(assets/sq1-box.png); } .day.sq2 { --sq: url(assets/sq2-box.png); } .day.sq3 { --sq: url(assets/sq3-box.png); }
+  .day.sq1.mid { --sq: url(assets/sq1-mid.png); } .day.sq2.mid { --sq: url(assets/sq2-mid.png); } .day.sq3.mid { --sq: url(assets/sq3-mid.png); }
+  .day.sq1.edge { --sq: url(assets/sq1-edge.png); } .day.sq2.edge { --sq: url(assets/sq2-edge.png); } .day.sq3.edge { --sq: url(assets/sq3-edge.png); }
   .day.edge { color: #1a1416; }
   .day, .nav .title, .stat, h1, .sheet h2, .tabbar em { font-variant-numeric: lining-nums; }   /* números alinhados na linha, sem os "antigos" do gótico */
-  .day.pred::after { background: repeating-linear-gradient(135deg, var(--box) 0 4px, #4a3841 4px 8px); }   /* previsão: mesmo tom dos dias comuns, com listras discretas */
+  .day.pred::after { content: ''; position: absolute; inset: 0; z-index: -1; -webkit-mask: var(--sq) center / 100% 100% no-repeat; mask: var(--sq) center / 100% 100% no-repeat; background: repeating-linear-gradient(135deg, transparent 0 4px, rgba(255, 255, 255, .09) 4px 8px); }   /* previsão: mesmo tom dos dias comuns, com listras discretas mais claras */
   .day.today::before { filter: drop-shadow(0 0 2px #fff) drop-shadow(0 0 7px rgba(255, 190, 210, .9)); }
   .day.future { color: #9a8890; }
   .day span { position: relative; }
