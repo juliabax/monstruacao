@@ -96,15 +96,26 @@
   .chara img { position: absolute; display: block; height: auto; }
   .chara .face { position: absolute; inset: 0; transform-origin: 50% 95%; animation: idle 5.2s ease-in-out infinite; }   /* cabeça respirando; as mãos ficam paradas */
   .chara .head { left: 0; top: 0; width: 100%; }
-  .chara .eyes { left: 30.4%; top: 26.5%; width: 49.6%; }
-  .chara .eyes.closed { opacity: 0; animation: blink 5.5s infinite; }
+  .chara .eyes { position: absolute; left: 30.4%; top: 26.5%; width: 49.6%; aspect-ratio: 428 / 274; }
+  .chara .eyes .eyes-base, .chara .eyes .eyes-lids { left: 0; top: 0; width: 100%; height: 100%; }
+  .chara .eyes-lids { opacity: 0; animation: blink 5.5s infinite; }                /* pálpebras: ficam por cima das pupilas */
+  .chara .pupils { position: absolute; inset: 0; animation: gaze 13s ease-in-out infinite; }
+  .chara .pupil { width: 10.5%; height: auto; }
+  .chara .pupil.l { left: 28.2%; top: 47.8%; }
+  .chara .pupil.r { left: 69.7%; top: 32.8%; }
   .chara .mouth { left: 52.5%; top: 80%; width: 20.9%; }
   .chara .hand { top: 82.6%; width: 26%; }
   .chara .hand.l { left: 13.3%; }
   .chara .hand.r { left: 79%; transform: scaleX(-1); }
   @keyframes idle { 0%, 100% { transform: translateY(1px) rotate(0deg); } 50% { transform: translateY(-5px) rotate(-1.3deg); } }
+  @keyframes gaze {   /* olha para os lados de vez em quando; as duas pupilas se movem juntas */
+    0%, 18%, 38%, 46%, 68%, 76%, 94%, 100% { transform: translate(0, 0); }
+    22%, 34% { transform: translate(-6%, 1%); }
+    52%, 64% { transform: translate(6%, -4%); }
+    80%, 90% { transform: translate(-3%, -5%); }
+  }
   @keyframes blink { 0%, 92%, 100% { opacity: 0; } 94%, 97% { opacity: 1; } }
-  @media (prefers-reduced-motion: reduce) { .chara .eyes.closed, .chara .face { animation: none; } }
+  @media (prefers-reduced-motion: reduce) { .chara .eyes-lids, .chara .face, .chara .pupils { animation: none; } }
 
   .backdrop { position: fixed; inset: 0; background: rgba(0,0,0,.55); display: none; align-items: flex-end; justify-content: center; z-index: 10; }
   .backdrop.open { display: flex; }
@@ -165,8 +176,11 @@
   <div class="chara">
     <div class="face">
       <img class="head" src="assets/head.png" alt="">
-      <img class="eyes open" src="assets/eyes-open.png" alt="">
-      <img class="eyes closed" src="assets/eyes-closed.png" alt="">
+      <div class="eyes">
+        <img class="eyes-base" src="assets/eyes-open.png" alt="">
+        <div class="pupils"><img class="pupil l" src="assets/pupil.png" alt=""><img class="pupil r" src="assets/pupil.png" alt=""></div>
+        <img class="eyes-lids" src="assets/eyes-closed.png" alt="">
+      </div>
       <img class="mouth" src="assets/mouth.png" alt="">
     </div>
     <img class="hand l" src="assets/hand.png" alt="">
