@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#be3a5c">
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="icon-192.png">
-<title>Meu Ciclo</title>
+<title>Monstro</title>
 <style>
   :root {
     --bg: #fbf7f6; --surface: #ffffff; --text: #2b2326; --muted: #7a6a70;
@@ -342,7 +342,7 @@ async function exportBackup() {
     try {
       const file = new File([json], name, { type });
       if (navigator.canShare && navigator.canShare({ files: [file] })) {
-        await navigator.share({ files: [file], title: 'Backup do Meu Ciclo' });
+        await navigator.share({ files: [file], title: 'Backup do Monstro' });
         markBackup(); toast('Backup compartilhado'); return;
       }
     } catch (e) { if (e.name === 'AbortError') return; }

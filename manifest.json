@@ -1,6 +1,6 @@
 {
-  "name": "Meu Ciclo",
-  "short_name": "Ciclo",
+  "name": "Monstro",
+  "short_name": "Monstro",
   "description": "Calendário menstrual simples e privado",
   "lang": "pt-BR",
   "start_url": "./",
