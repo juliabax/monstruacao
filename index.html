@@ -86,9 +86,8 @@
   }
   .tabbar button { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; gap: 2px; background: none; border: 0; padding: 12px 4px 2px; font-size: 13px; font-weight: 700; color: #fff; }
   .tabbar button img { height: 30px; width: auto; opacity: .75; }
-  .tabbar button em { display: none; font-style: normal; line-height: 1.1; }   /* só a aba ativa mostra o nome */
-  .tabbar button[aria-selected="true"] img { opacity: 1; }
-  .tabbar button[aria-selected="true"] em { display: block; }
+  .tabbar button em { font-style: normal; font-size: 12px; line-height: 1.1; opacity: .8; }
+  .tabbar button[aria-selected="true"] img, .tabbar button[aria-selected="true"] em { opacity: 1; }
 
   /* monstrinho: peças posicionadas em % da cabeça, em cima da barra */
   .chara-wrap { position: fixed; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; height: 0; z-index: 5; pointer-events: none;
