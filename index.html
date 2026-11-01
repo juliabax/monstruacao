@@ -43,6 +43,7 @@
   .day { aspect-ratio: 1; min-height: 44px; border: 1px solid transparent; border-radius: 12px; background: var(--surface); font-size: 16px; padding: 0; position: relative; }
   .day.mid { background: var(--tint); }
   .day.edge { background: var(--accent); color: var(--accent-ink); font-weight: 700; }
+  .day.pred { background: transparent; border: 2px dashed var(--accent); }
   .day.today { border-color: var(--text); }
   .day.future { color: var(--muted); }
   .legend { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 12px; font-size: 13px; color: var(--muted); }
@@ -88,6 +89,7 @@
     <div class="legend">
       <span><i style="background:var(--accent)"></i>Início / fim</span>
       <span><i style="background:var(--tint)"></i>Menstruada</span>
+      <span><i style="border:2px dashed var(--accent)"></i>Previsão</span>
       <span><i style="border:2px solid var(--text)"></i>Hoje</span>
     </div>
   </section>
@@ -189,6 +191,18 @@ function toast(msg) {
   clearTimeout(toast.t); toast.t = setTimeout(() => el.classList.remove('show'), 2600);
 }
 
+// Previsão: início do último período + média dos últimos ciclos (ignora intervalos fora de 15–60 dias,
+// que normalmente são meses sem registro). Não prevê durante uma menstruação em andamento.
+function predict() {
+  const ps = state.periods;
+  if (!ps.length || ps.some(p => !p.end)) return null;
+  const gaps = ps.slice(1).map((p, i) => diff(ps[i].start, p.start)).filter(g => g >= 15 && g <= 60).slice(-6);
+  if (!gaps.length) return null;
+  const avg = a => Math.round(a.reduce((x, y) => x + y, 0) / a.length);
+  const durs = ps.map(p => diff(p.start, p.end) + 1).slice(-6);
+  return { start: addDays(ps[ps.length - 1].start, avg(gaps)), days: avg(durs), cycle: avg(gaps), n: gaps.length, min: Math.min(...gaps), max: Math.max(...gaps) };
+}
+
 function renderSummary() {
   const el = $('summary'), ps = state.periods, t = todayISO();
   const open = ps.find(p => !p.end);
@@ -197,7 +211,17 @@ function renderSummary() {
     el.innerHTML = `<strong>Menstruação em andamento</strong><div class="muted">Dia ${n} · começou em ${fmt(open.start)}. Toque no último dia para marcar o fim.</div>`;
   } else if (ps.length) {
     const last = ps[ps.length - 1], n = diff(last.start, t);
-    el.innerHTML = `<strong>Último início: ${fmt(last.start, true)}</strong><div class="muted">${n <= 0 ? 'hoje' : 'há ' + plural(n, 'dia', 'dias')}</div>`;
+    const pr = predict();
+    let next = '<div class="muted" style="margin-top:8px">Registre mais um ciclo para ver a previsão da próxima.</div>';
+    if (pr) {
+      const k = diff(t, pr.start);
+      const when = k > 0 ? `em ${plural(k, 'dia', 'dias')}` : k === 0 ? 'hoje' : `atrasada ${plural(-k, 'dia', 'dias')}`;
+      const base = `Ciclo médio de ${pr.cycle} dias, de ${plural(pr.n, 'ciclo', 'ciclos')}` + (pr.min !== pr.max ? ` (varia de ${pr.min} a ${pr.max})` : '') + '. É só uma estimativa.';
+      next = k < -14
+        ? '<div class="muted" style="margin-top:8px">Já passou muito da data prevista. Se a menstruação veio, toque no dia em que começou para registrar.</div>'
+        : `<div style="margin-top:8px"><strong>Próxima prevista: ${fmt(pr.start)}</strong> · ${when}</div><div class="muted">${base}</div>`;
+    }
+    el.innerHTML = `<strong>Último início: ${fmt(last.start, true)}</strong><div class="muted">${n <= 0 ? 'hoje' : 'há ' + plural(n, 'dia', 'dias')}</div>${next}`;
   } else {
     el.innerHTML = `<strong>Bem-vinda!</strong><div class="muted">Toque num dia do calendário para marcar o início da menstruação.</div>`;
   }
@@ -224,6 +248,8 @@ function renderCalendar() {
       marks.set(d, d === p.start || d === p.end ? 'edge' : 'mid');
     }
   });
+  const pr = predict();
+  if (pr) for (let i = 0, d = pr.start; i < pr.days; i++, d = addDays(d, 1)) if (d >= t && !marks.has(d)) marks.set(d, 'pred');
   const first = new Date(y, m, 1).getDay(), days = new Date(y, m + 1, 0).getDate();
   let html = '';
   for (let i = 0; i < first; i++) html += '<span></span>';
