@@ -45,7 +45,8 @@
   .banner button { background: var(--accent); color: var(--accent-ink); border: 0; border-radius: 8px; padding: 8px 12px; white-space: nowrap; }
 
   .nav { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
-  .nav .title { font: 600 25px/1.1 var(--display); text-transform: capitalize; }
+  .nav .title { position: relative; isolation: isolate; flex: 1; text-align: center; padding: 16px 0; color: #fff; font: 600 25px/1.1 var(--display); text-transform: capitalize; text-shadow: 0 1px 3px rgba(40, 0, 15, .6); }
+  .nav .title::before { content: ''; position: absolute; z-index: -1; left: 50%; top: 50%; width: min(300px, 100%); aspect-ratio: 983 / 169; transform: translate(-50%, -50%); background: url(assets/backdrop-mes.png) center / contain no-repeat; }   /* respingo atrás do mês */
   .nav button { background: url(assets/sq2-dark.png) center / 100% 100% no-repeat; border: 0; color: var(--paper-ink); width: 52px; height: 52px; font-size: 22px; }
   .today-btn { display: block; margin: 0 auto 8px; background: none; border: 0; color: #f08aa6; font-size: 14px; padding: 4px 12px; }
 
