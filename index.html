@@ -82,11 +82,13 @@
   .tabbar {
     position: fixed; left: 50%; transform: translateX(-50%); bottom: 0; width: 100%; max-width: 480px; z-index: 4;
     height: calc(var(--barh) + env(safe-area-inset-bottom)); padding-bottom: env(safe-area-inset-bottom); display: flex;
-    background: url(assets/bar-pink.png) top center / 100% var(--barh) no-repeat, linear-gradient(#ee8fab, #ee8fab) bottom / 100% env(safe-area-inset-bottom) no-repeat;
+    background: url(assets/bar-rose.png) top center / 100% var(--barh) no-repeat, linear-gradient(#ba405e, #ba405e) bottom / 100% env(safe-area-inset-bottom) no-repeat;
   }
-  .tabbar button { flex: 1; background: none; border: 0; padding: 10px 4px 2px; font-size: 12px; color: #4a1f31; }
-  .tabbar button[aria-selected="true"] { color: #5c0f2b; font-weight: 800; }
-  .tabbar button span { display: block; font-size: 20px; line-height: 1.1; }
+  .tabbar button { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; gap: 2px; background: none; border: 0; padding: 12px 4px 2px; font-size: 13px; font-weight: 700; color: #fff; }
+  .tabbar button img { height: 30px; width: auto; opacity: .75; }
+  .tabbar button em { display: none; font-style: normal; line-height: 1.1; }   /* só a aba ativa mostra o nome */
+  .tabbar button[aria-selected="true"] img { opacity: 1; }
+  .tabbar button[aria-selected="true"] em { display: block; }
 
   /* monstrinho: peças posicionadas em % da cabeça, em cima da barra */
   .chara-wrap { position: fixed; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; height: 0; z-index: 5; pointer-events: none;
@@ -166,9 +168,9 @@
 </div>
 
 <nav class="tabbar" role="tablist">
-  <button role="tab" data-tab="cal" aria-selected="true"><span>📅</span>Calendário</button>
-  <button role="tab" data-tab="hist" aria-selected="false"><span>📊</span>Histórico</button>
-  <button role="tab" data-tab="bkp" aria-selected="false"><span>💾</span>Backup</button>
+  <button role="tab" data-tab="cal" aria-selected="true" aria-label="Calendário"><img src="assets/tab-calendario.png" alt=""><em>Calendário</em></button>
+  <button role="tab" data-tab="hist" aria-selected="false" aria-label="Histórico"><img src="assets/tab-historico.png" alt=""><em>Histórico</em></button>
+  <button role="tab" data-tab="bkp" aria-selected="false" aria-label="Backup"><img src="assets/tab-backup.png" alt=""><em>Backup</em></button>
 </nav>
 
 <div class="chara-wrap" aria-hidden="true">
