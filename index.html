@@ -99,7 +99,8 @@
   .chara .head { left: 0; top: 0; width: 100%; }
   .chara .eyes { position: absolute; left: 30.4%; top: 26.5%; width: 49.6%; aspect-ratio: 428 / 274; }
   .chara .eyes .eyes-base, .chara .eyes .eyes-lids, .chara .eyes .eyes-happy { left: 0; top: 0; width: 100%; height: 100%; }
-  .chara .eyes-happy { opacity: 0; transition: opacity .15s; }   /* olhos felizes (arcos) quando ele sorri */
+  .chara .eyes-happy { opacity: 0; transition: opacity .15s; }
+  .chara .eyes .eyes-sad { left: 0; top: 0; width: 100%; height: auto; opacity: 0; transition: opacity .25s; }   /* olhos tristes (com as pálpebras caídas), por baixo das pupilas */   /* olhos felizes (arcos) quando ele sorri */
   .chara .eyes-lids { opacity: 0; animation: blink 5.5s infinite; }                /* pálpebras: ficam por cima das pupilas */
   .chara .pupils { position: absolute; inset: 0; animation: gaze 13s ease-in-out infinite; }
   .chara .pupil { width: 10.5%; height: auto; }
@@ -107,6 +108,7 @@
   .chara .pupil.r { left: 69.7%; top: 32.8%; }
   .chara .mouth { left: 52.5%; top: 80%; width: 20.9%; transition: opacity .18s; }
   .chara .mouth.smile { left: 50%; top: 66%; width: 24%; opacity: 0; }
+  .chara .mouth.sad { left: 52%; top: 68%; width: 21.5%; opacity: 0; }
   .chara .hand { top: 82.6%; width: 26%; }
   .chara .hand.l { left: 13.3%; }
   .chara .hand.r { left: 79%; transform: scaleX(-1); }
@@ -115,9 +117,35 @@
   .chara.happy .mouth.smile { opacity: 1; }
   .chara.happy .pupils { animation: none; }
   .chara.happy .eyes-happy { opacity: 1; }
+  /* triste: cabeça pendendo e soluçando, olhos e boca tristes, pupilas olhando para baixo, lágrimas saindo */
+  .chara.sad .face { animation: droop 4.6s ease-in-out both; }
+  .chara.sad .mouth.closed { opacity: 0; }
+  .chara.sad .mouth.sad { opacity: 1; }
+  .chara.sad .eyes-sad { opacity: 1; }
+  .chara.sad .pupils { animation: none; transform: translate(-5%, 8%); transition: transform .4s; }
+  .chara.sad .eyes-lids { animation: none; }
+  .chara .tears { position: absolute; inset: 0; pointer-events: none; }
+  .chara .tear { position: absolute; width: 10%; opacity: 0; animation: tx var(--dur) linear var(--delay) both; }
+  .chara .tear img { position: static; display: block; width: 100%; height: auto; animation: ty var(--dur) ease-in var(--delay) both; }
+  @keyframes tx { 0% { transform: translateX(0); opacity: 0; } 10% { opacity: 1; } 80% { opacity: 1; } 100% { transform: translateX(var(--dx)); opacity: 0; } }
+  @keyframes ty { 0% { transform: translateY(0) rotate(0deg) scale(.6); } 22% { transform: translateY(-10px) rotate(calc(var(--r) * .3)) scale(1); } 100% { transform: translateY(var(--dy)) rotate(var(--r)) scale(1); } }
   .chara.happy .eyes-lids { animation: none; }
   .chara.wink .eyes-lids { animation: wink .95s ease-in-out both; }   /* remate: duas piscadinhas ao voltar ao normal */
   @keyframes wink { 0%, 100% { opacity: 0; } 12%, 24% { opacity: 1; } 38%, 52% { opacity: 0; } 64%, 78% { opacity: 1; } 90% { opacity: 0; } }
+  @keyframes droop {   /* cabeça cai para a frente, solta uns soluços e se recompõe devagar */
+    0% { transform: translateY(1px) rotate(0deg); }
+    12% { transform: translate(2px, 10%) rotate(5.5deg); }
+    18% { transform: translate(2px, 8%) rotate(5deg); }
+    24% { transform: translate(2px, 10%) rotate(5.5deg); }
+    30% { transform: translate(2px, 8%) rotate(5deg); }
+    36% { transform: translate(2px, 10%) rotate(5.5deg); }
+    44% { transform: translate(2px, 9%) rotate(5deg); }
+    50% { transform: translate(2px, 10.5%) rotate(5.5deg); }
+    57% { transform: translate(2px, 8.5%) rotate(5deg); }
+    64% { transform: translate(2px, 10%) rotate(5.5deg); }
+    78% { transform: translate(1px, 8%) rotate(4deg); }
+    100% { transform: translateY(1px) rotate(0deg); }
+  }
   @keyframes lift {   /* dança de alegria: pulinhos rápidos, balanço de um lado para o outro e leve amassadinho ao descer; depois se acalma */
     0% { transform: translateY(1px) rotate(0deg); }
     5% { transform: translate(-2px, -14%) rotate(-4deg) scale(1, 1.02); }
@@ -148,7 +176,7 @@
     80%, 90% { transform: translate(-3%, -5%); }
   }
   @keyframes blink { 0%, 92%, 100% { opacity: 0; } 94%, 97% { opacity: 1; } }
-  @media (prefers-reduced-motion: reduce) { .chara .eyes-lids, .chara .face, .chara .pupils, .chara.happy .face, .chara.wink .eyes-lids { animation: none; } }
+  @media (prefers-reduced-motion: reduce) { .chara .eyes-lids, .chara .face, .chara .pupils, .chara.happy .face, .chara.wink .eyes-lids, .chara.sad .face { animation: none; } }
 
   .rain { position: fixed; inset: 0; overflow: hidden; pointer-events: none; z-index: 8; }
   .rain .bd { position: absolute; top: 0; height: auto; opacity: 0; animation: fall var(--dur) cubic-bezier(.45, .05, .9, .6) both; }
@@ -218,12 +246,14 @@
       <img class="head" src="assets/head.png" alt="">
       <div class="eyes">
         <img class="eyes-base" src="assets/eyes-open.png" alt="">
+        <img class="eyes-sad" src="assets/eyes-sad.png" alt="">
         <div class="pupils"><img class="pupil l" src="assets/pupil.png" alt=""><img class="pupil r" src="assets/pupil.png" alt=""></div>
         <img class="eyes-lids" src="assets/eyes-closed.png" alt="">
         <img class="eyes-happy" src="assets/eyes-happy.png" alt="">
       </div>
       <img class="mouth closed" src="assets/mouth.png" alt="">
       <img class="mouth smile" src="assets/mouth-smile.png" alt="">
+      <img class="mouth sad" src="assets/mouth-sad.png" alt="">
     </div>
     <img class="hand l" src="assets/hand.png" alt="">
     <img class="hand r" src="assets/hand.png" alt="">
@@ -462,13 +492,13 @@ function openSheet(d) {
   if (cont) {
     const i = ps.indexOf(cont);
     if (d !== cont.start) acts.push(['Mudar o início para este dia', () => mutate(l => { l[i].start = d; }, 'Início alterado')]);
-    if (d >= cont.start && d !== cont.end) acts.push(['Marcar o fim neste dia', () => mutate(l => { l[i].end = d; }, 'Fim marcado')]);
+    if (d >= cont.start && d !== cont.end) acts.push(['Marcar o fim neste dia', () => { const emAndamento = !cont.end; if (mutate(l => { l[i].end = d; }, 'Fim marcado') && emAndamento) sadMoment(); }]);
     acts.push(['Remover este registro', () => { if (confirm('Remover este período do histórico?')) mutate(l => { l.splice(i, 1); }, 'Registro removido'); }, 'danger']);
   } else if (d > t) {
     note = 'Só é possível registrar dias até hoje.';
   } else if (open && d > open.start) {
     const i = ps.indexOf(open);
-    acts.push(['Marcar o fim neste dia', () => mutate(l => { l[i].end = d; }, 'Fim marcado')]);
+    acts.push(['Marcar o fim neste dia', () => { if (mutate(l => { l[i].end = d; }, 'Fim marcado')) sadMoment(); }]);
   } else {
     // antes de um registro já existente (preencher o passado): vira período de 1 dia, e o fim é ajustado depois
     const backfill = !!open || ps.some(p => p.start > d);
@@ -506,7 +536,7 @@ function openSheet(d) {
 const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
 function celebrate() {
   const c = document.querySelector('.chara');
-  c.classList.remove('happy', 'wink'); void c.offsetWidth; c.classList.add('happy');
+  c.classList.remove('happy', 'wink', 'sad'); c.querySelector('.tears')?.remove(); void c.offsetWidth; c.classList.add('happy');
   clearTimeout(celebrate.t); clearTimeout(celebrate.w);
   celebrate.t = setTimeout(() => {
     c.classList.remove('happy');
@@ -520,6 +550,23 @@ function celebrate() {
     rain.appendChild(img);
   }
   document.body.appendChild(rain); setTimeout(() => rain.remove(), 4700);
+}
+
+/* fim da menstruação marcado: o monstrinho fica cabisbaixo e chorando */
+function sadMoment() {
+  const c = document.querySelector('.chara');
+  c.classList.remove('happy', 'wink', 'sad'); c.querySelector('.tears')?.remove(); void c.offsetWidth; c.classList.add('sad');
+  clearTimeout(celebrate.t); clearTimeout(celebrate.w); clearTimeout(sadMoment.t);
+  sadMoment.t = setTimeout(() => c.classList.remove('sad'), reduceMotion ? 2500 : 4800);
+  if (reduceMotion) return;
+  const box = document.createElement('div'); box.className = 'tears'; box.setAttribute('aria-hidden', 'true');
+  for (let i = 0; i < 10; i++) {   // alterna olho esquerdo/direito; cada lágrima sobe um pouco, abre para o lado e cai
+    const left = i % 2 === 0, sgn = left ? -1 : 1, t = document.createElement('span');
+    t.className = 'tear';
+    t.style.cssText = `left:${left ? 36 : 73}%;top:${left ? 60 : 53}%;--dx:${Math.round(sgn * (35 + Math.random() * 80))}px;--dy:${Math.round(45 + Math.random() * 90)}px;--r:${Math.round(sgn * (20 + Math.random() * 50))}deg;--dur:${(1.1 + Math.random() * .7).toFixed(2)}s;--delay:${(.25 + i * .33 + Math.random() * .2).toFixed(2)}s`;
+    t.innerHTML = '<img src="assets/tear.png" alt="">'; box.appendChild(t);
+  }
+  c.appendChild(box); setTimeout(() => box.remove(), 5800);
 }
 
 function setNote(d, txt) {
