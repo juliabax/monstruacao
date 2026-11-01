@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Editor do Monstro</title>
+<style>
+  :root { --cw: min(86vw, 520px); }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: #140d10 url(assets/bg.jpg) center / cover fixed; color: #f3eaed; font: 15px/1.4 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; padding: 14px; }
+  h1 { font-size: 20px; margin: 0 0 4px; }
+  .hint { color: #bba9b0; font-size: 13px; margin: 0 0 12px; }
+  .layout { display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-start; }
+
+  /* cena: o monstro do app, ampliado, com a barra de baixo para dar contexto */
+  .stage { position: relative; width: calc(var(--cw) * 1.14); height: calc(var(--cw) * 0.84); border-radius: 12px; background: rgba(0, 0, 0, .25); overflow: hidden; touch-action: none; flex: 0 0 auto; }
+  .bar { position: absolute; left: 0; right: 0; top: calc(var(--cw) * 0.57); height: calc(var(--cw) * 0.3); background: url(assets/bar-rose.png) top center / 100% auto no-repeat, #ba405e; z-index: 1; }
+  .chara { position: absolute; left: 7%; top: calc(var(--cw) * 0.01); width: var(--cw); aspect-ratio: 580 / 344; z-index: 2; }
+  .chara img { position: absolute; display: block; height: auto; user-select: none; -webkit-user-drag: none; }
+  .face { position: absolute; inset: 0; transform-origin: 50% 95%; transition: transform .25s; }
+  .face.pose { transform: translate(2px, 10%) rotate(5.5deg); }
+  .head { left: 0; top: 0; width: 100%; }
+  .eyes { position: absolute; left: 30.4%; top: 26.5%; width: 49.6%; aspect-ratio: 428 / 274; }
+  .eyes img { left: 0; top: 0; }
+  .eyes .base { width: 100%; height: 100%; }
+  .eyes .sad { width: 100%; }
+  .pupils { position: absolute; inset: 0; transform: translate(-5%, 8%); }
+  .pupil { width: 10.5%; }
+  .pupil.l { left: 28.2%; top: 47.8%; }
+  .pupil.r { left: 69.7%; top: 32.8%; }
+  .hand { top: 82.6%; width: 26%; }
+  .hand.l { left: 13.3%; }
+  .hand.r { left: 79%; transform: scaleX(-1); }
+  #mouth { cursor: grab; touch-action: none; outline: 2px dashed rgba(255, 255, 255, .55); outline-offset: 2px; }
+  #mouth.drag { cursor: grabbing; }
+  .face.pose #mouth { outline: none; pointer-events: none; }
+  .tears { position: absolute; inset: 0; pointer-events: none; }
+  .tears img { width: 10%; opacity: 0; }
+  .mk { position: absolute; width: 30px; height: 30px; margin: -15px 0 0 -15px; border: 2px solid #fff; border-radius: 50%; background: rgba(224, 105, 138, .45); cursor: grab; touch-action: none; z-index: 5; display: grid; place-items: center; font-weight: 700; font-size: 13px; text-shadow: 0 1px 2px #000; }
+  .mk::after { content: ''; position: absolute; width: 4px; height: 4px; border-radius: 50%; background: #fff; }
+  .mk span { position: absolute; top: -20px; font-size: 12px; white-space: nowrap; }
+  .mk.drag { cursor: grabbing; background: rgba(224, 105, 138, .8); }
+
+  .panel { flex: 1 1 300px; max-width: 460px; background: #3a2a31; border: 1px solid #4a383f; border-radius: 14px; padding: 14px; }
+  .panel h2 { font-size: 15px; margin: 14px 0 6px; color: #f08aa6; }
+  .panel h2:first-child { margin-top: 0; }
+  .row { display: grid; grid-template-columns: 74px 1fr 70px; gap: 8px; align-items: center; margin-bottom: 6px; }
+  .row label { color: #bba9b0; font-size: 13px; }
+  .row input[type=range] { width: 100%; }
+  .row input[type=number] { width: 100%; padding: 6px; border-radius: 8px; border: 1px solid #4a383f; background: #251d20; color: #f3eaed; font: inherit; }
+  .btns { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0; }
+  button { font: inherit; color: inherit; cursor: pointer; padding: 10px 14px; border-radius: 10px; border: 1px solid #4a383f; background: #34262d; }
+  button.pri { background: #e0698a; color: #1a1416; border-color: transparent; font-weight: 700; }
+  label.chk { display: flex; gap: 8px; align-items: center; margin: 8px 0; }
+  textarea { width: 100%; min-height: 150px; padding: 10px; border-radius: 10px; border: 1px solid #4a383f; background: #251d20; color: #f3eaed; font: 13px/1.5 ui-monospace, Menlo, Consolas, monospace; resize: vertical; }
+  .ok { color: #9be3a8; font-size: 13px; min-height: 18px; }
+</style>
+</head>
+<body>
+<h1>Editor do Monstro (boca triste e lágrimas)</h1>
+<p class="hint">Arraste a <b>boca</b> (borda tracejada) e os dois <b>pontos rosa</b> (de onde saem as lágrimas, um por olho). A roda do mouse, ou o controle "Largura", muda o tamanho da boca. Depois copie os valores no final e me mande.</p>
+
+<div class="layout">
+  <div class="stage" id="stage">
+    <div class="bar"></div>
+    <div class="chara" id="chara">
+      <div class="face" id="face">
+        <img class="head" src="assets/head.png" alt="">
+        <div class="eyes">
+          <img class="base" src="assets/eyes-open.png" alt="">
+          <img class="sad" src="assets/eyes-sad.png" alt="">
+          <div class="pupils"><img class="pupil l" src="assets/pupil.png" alt=""><img class="pupil r" src="assets/pupil.png" alt=""></div>
+        </div>
+        <img id="mouth" src="assets/mouth-sad.png" alt="" draggable="false">
+      </div>
+      <img class="hand l" src="assets/hand.png" alt="">
+      <img class="hand r" src="assets/hand.png" alt="">
+      <div class="tears" id="tears"></div>
+      <div class="mk" id="mkL"><span>olho esq.</span></div>
+      <div class="mk" id="mkR"><span>olho dir.</span></div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>Boca triste</h2>
+    <div class="row"><label>Esquerda %</label><input type="range" id="rml" min="20" max="80" step="0.1"><input type="number" id="nml" step="0.1"></div>
+    <div class="row"><label>Topo %</label><input type="range" id="rmt" min="40" max="110" step="0.1"><input type="number" id="nmt" step="0.1"></div>
+    <div class="row"><label>Largura %</label><input type="range" id="rmw" min="8" max="40" step="0.1"><input type="number" id="nmw" step="0.1"></div>
+
+    <h2>Início das lágrimas</h2>
+    <div class="row"><label>Esq. X %</label><input type="range" id="rlx" min="0" max="100" step="0.1"><input type="number" id="nlx" step="0.1"></div>
+    <div class="row"><label>Esq. Y %</label><input type="range" id="rly" min="0" max="110" step="0.1"><input type="number" id="nly" step="0.1"></div>
+    <div class="row"><label>Dir. X %</label><input type="range" id="rrx" min="0" max="100" step="0.1"><input type="number" id="nrx" step="0.1"></div>
+    <div class="row"><label>Dir. Y %</label><input type="range" id="rry" min="0" max="110" step="0.1"><input type="number" id="nry" step="0.1"></div>
+
+    <div class="btns">
+      <button class="pri" id="play">▶ Testar lágrimas</button>
+      <button id="reset">Voltar aos valores do app</button>
+    </div>
+    <label class="chk"><input type="checkbox" id="pose"> Ver na pose triste (cabeça caída) para conferir</label>
+
+    <h2>Valores para me mandar</h2>
+    <textarea id="out" readonly></textarea>
+    <div class="btns"><button class="pri" id="copy">Copiar valores</button></div>
+    <div class="ok" id="msg"></div>
+  </div>
+</div>
+
+<script>
+'use strict';
+const $ = id => document.getElementById(id);
+const KEY = 'monstro.editor.v1';
+// valores que o app usa hoje
+const APP = { ml: 52, mt: 68, mw: 21.5, lx: 36, ly: 60, rx: 73, ry: 53 };
+let v = { ...APP };
+try { const s = JSON.parse(localStorage.getItem(KEY)); if (s && Object.keys(APP).every(k => typeof s[k] === 'number')) v = s; } catch (e) {}
+
+const chara = $('chara'), mouth = $('mouth');
+const r1 = x => Math.round(x * 10) / 10;
+const ids = { ml: ['rml', 'nml'], mt: ['rmt', 'nmt'], mw: ['rmw', 'nmw'], lx: ['rlx', 'nlx'], ly: ['rly', 'nly'], rx: ['rrx', 'nrx'], ry: ['rry', 'nry'] };
+
+function render(from) {
+  mouth.style.cssText = `left:${v.ml}%;top:${v.mt}%;width:${v.mw}%`;
+  $('mkL').style.cssText = `left:${v.lx}%;top:${v.ly}%`;
+  $('mkR').style.cssText = `left:${v.rx}%;top:${v.ry}%`;
+  for (const k in ids) for (const id of ids[k]) if (id !== from) $(id).value = v[k];
+  $('out').value =
+`Boca triste:        left ${v.ml}%   top ${v.mt}%   width ${v.mw}%
+Lágrima esquerda:   left ${v.lx}%   top ${v.ly}%
+Lágrima direita:    left ${v.rx}%   top ${v.ry}%
+
+CSS da boca:
+.chara .mouth.sad { left: ${v.ml}%; top: ${v.mt}%; width: ${v.mw}%; }
+
+JS (início das lágrimas):
+left ? ${v.lx} : ${v.rx}   (left %)
+left ? ${v.ly} : ${v.ry}   (top %)`;
+  try { localStorage.setItem(KEY, JSON.stringify(v)); } catch (e) {}
+}
+for (const k in ids) for (const id of ids[k]) $(id).addEventListener('input', e => { const n = parseFloat(e.target.value); if (!isNaN(n)) { v[k] = r1(n); render(id); } });
+
+// arrastar: o deslocamento vira % da largura (x) e % da altura (y) da área do monstro
+function drag(el, onMove) {
+  el.addEventListener('pointerdown', e => {
+    e.preventDefault(); el.setPointerCapture(e.pointerId); el.classList.add('drag');
+    const rect = chara.getBoundingClientRect(), x0 = e.clientX, y0 = e.clientY, start = { ...v };
+    const move = ev => onMove((ev.clientX - x0) / rect.width * 100, (ev.clientY - y0) / rect.height * 100, start);
+    const up = () => { el.classList.remove('drag'); el.removeEventListener('pointermove', move); el.removeEventListener('pointerup', up); el.removeEventListener('pointercancel', up); };
+    el.addEventListener('pointermove', move); el.addEventListener('pointerup', up); el.addEventListener('pointercancel', up);
+  });
+}
+drag(mouth, (dx, dy, s) => { v.ml = r1(s.ml + dx); v.mt = r1(s.mt + dy); render(); });
+const marker = (el, kx, ky) => drag(el, (dx, dy, s) => { v[kx] = r1(s[kx] + dx); v[ky] = r1(s[ky] + dy); render(); });
+marker($('mkL'), 'lx', 'ly'); marker($('mkR'), 'rx', 'ry');
+// tamanho da boca com a roda do mouse
+$('stage').addEventListener('wheel', e => {
+  if (!e.target.closest('#mouth')) return;
+  e.preventDefault(); v.mw = r1(Math.min(40, Math.max(8, v.mw + (e.deltaY < 0 ? .5 : -.5)))); render();
+}, { passive: false });
+
+$('pose').addEventListener('change', e => $('face').classList.toggle('pose', e.target.checked));
+$('reset').onclick = () => { v = { ...APP }; render(); };
+
+// mesma choradeira do app, usando os pontos de partida do editor
+$('play').onclick = () => {
+  const box = $('tears'); box.innerHTML = '';
+  for (let i = 0; i < 10; i++) {
+    const left = i % 2 === 0, sgn = left ? -1 : 1, t = new Image();
+    t.src = 'assets/tear.png'; t.alt = '';
+    t.style.cssText = `position:absolute;left:${left ? v.lx : v.rx}%;top:${left ? v.ly : v.ry}%`;
+    const dx = sgn * (40 + Math.random() * 80), dy = 50 + Math.random() * 90, up = 26 + Math.random() * 16, N = 16, frames = [];
+    const k = chara.getBoundingClientRect().width / 190;   // o app mostra o monstro com ~190px; aqui é maior, então escala o movimento
+    for (let n = 0; n <= N; n++) {
+      const u = n / N, x = dx * u * k, y = (-up * u + (dy + up) * u * u) * k;
+      const vx = dx, vy = -up + 2 * (dy + up) * u, ang = Math.atan2(-vx, vy) * 180 / Math.PI;
+      frames.push({ offset: u, opacity: u < .08 ? u / .08 : u > .8 ? (1 - u) / .2 : 1,
+        transform: `translate(-50%, -50%) translate(${x.toFixed(1)}px, ${y.toFixed(1)}px) rotate(${ang.toFixed(1)}deg) scale(${(.6 + .4 * Math.min(1, u * 4)).toFixed(2)})` });
+    }
+    t.animate(frames, { duration: 1100 + Math.random() * 700, delay: 150 + i * 330 + Math.random() * 200, fill: 'both', easing: 'linear' });
+    box.appendChild(t);
+  }
+  setTimeout(() => { box.innerHTML = ''; }, 5600);
+};
+
+$('copy').onclick = async () => {
+  const t = $('out').value;
+  try { await navigator.clipboard.writeText(t); }
+  catch (e) { $('out').select(); document.execCommand('copy'); }
+  $('msg').textContent = 'Copiado! Cole aqui na conversa.'; setTimeout(() => { $('msg').textContent = ''; }, 3000);
+};
+render();
+</script>
+</body>
+</html>
