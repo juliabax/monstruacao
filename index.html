@@ -398,8 +398,12 @@ function importBackup(file) {
       if (list.length !== data.periods.length) throw new Error();
       const err = check(list);
       if (err) throw new Error();
-      if (!confirm(`Substituir os ${state.periods.length} registros atuais pelos ${list.length} do arquivo?`)) return;
-      state.periods = list; save(); renderAll(); toast('Backup restaurado');
+      const last = list[list.length - 1];
+      const faixa = last ? `, de ${fmt(list[0].start, true)} até ${fmt(last.end || last.start, true)}` : '';
+      if (!confirm(`O arquivo tem ${plural(list.length, 'registro', 'registros')}${faixa}.\n\nSubstituir os ${plural(state.periods.length, 'registro atual', 'registros atuais')} por esses?`)) return;
+      state.periods = list; save();
+      if (last) { const [y, m] = last.start.split('-').map(Number); view = { y, m: m - 1 }; }
+      renderAll(); setTab('cal'); toast(`Backup restaurado: ${plural(list.length, 'registro', 'registros')}`);
     } catch (e) { toast('Arquivo inválido: nada foi alterado'); }
   };
   r.readAsText(file);
