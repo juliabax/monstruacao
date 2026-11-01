@@ -1,9 +1,9 @@
 // Rede primeiro (pega atualizações), cache como reserva para funcionar offline.
-const CACHE = 'ciclo-v18';
+const CACHE = 'ciclo-v19';
 const ASSETS = [
   './', 'index.html', 'manifest.json', 'icon-192.png', 'icon-512.png', 'icon-maskable-512.png', 'apple-touch-icon.png',
   'assets/bg.jpg', 'assets/backdrop-mes.png', 'assets/bar.png', 'assets/bar-rose.png', 'assets/tab-calendario.png', 'assets/tab-historico.png', 'assets/tab-backup.png', 'assets/big-square.png', 'assets/big-square-dark.png', 'assets/sq2-dark.png', 'assets/sq1.png', 'assets/sq2.png', 'assets/sq3.png', 'assets/sq1-box.png', 'assets/sq1-mid.png', 'assets/sq1-edge.png', 'assets/sq2-box.png', 'assets/sq2-mid.png', 'assets/sq2-edge.png', 'assets/sq3-box.png', 'assets/sq3-mid.png', 'assets/sq3-edge.png',
-  'assets/head.png', 'assets/eyes-open.png', 'assets/pupil.png', 'assets/eyes-closed.png', 'assets/mouth.png', 'assets/mouth-smile.png', 'assets/blood-drop.png', 'assets/hand.png', 'assets/fonts/metal-mania.woff2',
+  'assets/head.png', 'assets/eyes-open.png', 'assets/pupil.png', 'assets/eyes-closed.png', 'assets/eyes-happy.png', 'assets/mouth.png', 'assets/mouth-smile.png', 'assets/blood-drop.png', 'assets/hand.png', 'assets/fonts/metal-mania.woff2',
 ];
 
 self.addEventListener('install', e => {
