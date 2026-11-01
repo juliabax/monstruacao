@@ -104,10 +104,22 @@
   .chara .pupil { width: 10.5%; height: auto; }
   .chara .pupil.l { left: 28.2%; top: 47.8%; }
   .chara .pupil.r { left: 69.7%; top: 32.8%; }
-  .chara .mouth { left: 52.5%; top: 80%; width: 20.9%; }
+  .chara .mouth { left: 52.5%; top: 80%; width: 20.9%; transition: opacity .18s; }
+  .chara .mouth.smile { left: 52.9%; top: 68%; width: 20%; opacity: 0; }
   .chara .hand { top: 82.6%; width: 26%; }
   .chara .hand.l { left: 13.3%; }
   .chara .hand.r { left: 79%; transform: scaleX(-1); }
+  .chara.happy .face { animation: lift 3.6s ease-in-out both; }
+  .chara.happy .mouth.closed { opacity: 0; }
+  .chara.happy .mouth.smile { opacity: 1; }
+  .chara.happy .pupils { animation: none; }
+  @keyframes lift {
+    0% { transform: translateY(1px) rotate(0deg); }
+    16% { transform: translateY(-14px) rotate(-3deg); }
+    30% { transform: translateY(-11px) rotate(-2deg); }
+    80% { transform: translateY(-13px) rotate(-2.6deg); }
+    100% { transform: translateY(1px) rotate(0deg); }
+  }
   @keyframes idle { 0%, 100% { transform: translateY(1px) rotate(0deg); } 50% { transform: translateY(-5px) rotate(-1.3deg); } }
   @keyframes gaze {   /* olha para os lados de vez em quando; as duas pupilas se movem juntas */
     0%, 18%, 38%, 46%, 68%, 76%, 94%, 100% { transform: translate(0, 0); }
@@ -116,8 +128,15 @@
     80%, 90% { transform: translate(-3%, -5%); }
   }
   @keyframes blink { 0%, 92%, 100% { opacity: 0; } 94%, 97% { opacity: 1; } }
-  @media (prefers-reduced-motion: reduce) { .chara .eyes-lids, .chara .face, .chara .pupils { animation: none; } }
+  @media (prefers-reduced-motion: reduce) { .chara .eyes-lids, .chara .face, .chara .pupils, .chara.happy .face { animation: none; } }
 
+  .rain { position: fixed; inset: 0; overflow: hidden; pointer-events: none; z-index: 8; }
+  .rain .bd { position: absolute; top: 0; height: auto; opacity: 0; animation: fall var(--dur) cubic-bezier(.45, .05, .9, .6) both; }
+  @keyframes fall {   /* cai do topo, acelerando, e sai pela parte de baixo da tela */
+    0% { transform: translate(0, -14vh) rotate(var(--r)); opacity: 0; }
+    8% { opacity: 1; }
+    100% { transform: translate(var(--sw), 112vh) rotate(calc(var(--r) * -1)); opacity: 1; }
+  }
   .backdrop { position: fixed; inset: 0; background: rgba(0,0,0,.55); display: none; align-items: flex-end; justify-content: center; z-index: 10; }
   .backdrop.open { display: flex; }
   .sheet { --bw: 26px; width: 100%; max-width: 480px; max-height: 90vh; overflow-y: auto; margin: 0 6px calc(6px + env(safe-area-inset-bottom)); padding: 0 4px; }
@@ -182,7 +201,8 @@
         <div class="pupils"><img class="pupil l" src="assets/pupil.png" alt=""><img class="pupil r" src="assets/pupil.png" alt=""></div>
         <img class="eyes-lids" src="assets/eyes-closed.png" alt="">
       </div>
-      <img class="mouth" src="assets/mouth.png" alt="">
+      <img class="mouth closed" src="assets/mouth.png" alt="">
+      <img class="mouth smile" src="assets/mouth-smile.png" alt="">
     </div>
     <img class="hand l" src="assets/hand.png" alt="">
     <img class="hand r" src="assets/hand.png" alt="">
@@ -431,7 +451,7 @@ function openSheet(d) {
   } else {
     // antes de um registro já existente (preencher o passado): vira período de 1 dia, e o fim é ajustado depois
     const backfill = !!open || ps.some(p => p.start > d);
-    acts.push(['Marcar o início da menstruação aqui', () => mutate(l => { l.push({ start: d, end: backfill ? d : null }); }, 'Início marcado')]);
+    acts.push(['Marcar o início da menstruação aqui', () => { if (mutate(l => { l.push({ start: d, end: backfill ? d : null }); }, 'Início marcado') && !backfill) celebrate(); }]);
     const prev = [...ps].reverse().find(p => p.end && p.end < d);
     if (prev && diff(prev.end, d) <= 14) {
       const i = ps.indexOf(prev);
@@ -459,6 +479,22 @@ function openSheet(d) {
     if (b.dataset.k === 'x') closeSheet(); else acts[+b.dataset.k][1]();
   };
   $('backdrop').classList.add('open');
+}
+
+/* início da menstruação marcado: o monstrinho levanta a cabeça e sorri, e cai uma chuva de gotas */
+const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+function celebrate() {
+  const c = document.querySelector('.chara');
+  c.classList.remove('happy'); void c.offsetWidth; c.classList.add('happy');
+  clearTimeout(celebrate.t); celebrate.t = setTimeout(() => c.classList.remove('happy'), reduceMotion ? 2500 : 3700);
+  if (reduceMotion) return;
+  const rain = document.createElement('div'); rain.className = 'rain'; rain.setAttribute('aria-hidden', 'true');
+  for (let i = 0; i < 14; i++) {
+    const img = new Image(); img.src = 'assets/blood-drop.png'; img.alt = ''; img.className = 'bd';
+    img.style.cssText = `left:${3 + Math.random() * 92}%;width:${14 + Math.random() * 14}px;--dur:${1.7 + Math.random() * 1.4}s;animation-delay:${Math.random() * 1.3}s;--sw:${Math.round(Math.random() * 40 - 20)}px;--r:${Math.round(Math.random() * 30 - 15)}deg`;
+    rain.appendChild(img);
+  }
+  document.body.appendChild(rain); setTimeout(() => rain.remove(), 4700);
 }
 
 function setNote(d, txt) {
