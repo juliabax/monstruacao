@@ -30,7 +30,7 @@
   button { font: inherit; color: inherit; cursor: pointer; }
 
   /* caixas grandes: desenho de papel rasgado esticado (9 fatias) */
-  .card, .list li button, .sheet {
+  .card, .list li button, .sheet, .dlgbox {
     --bw: 22px;
     border: var(--bw) solid transparent;
     border-image: url(assets/big-square-dark.png) 65 fill / var(--bw) stretch;
@@ -186,6 +186,13 @@
   }
   .backdrop { position: fixed; inset: 0; background: rgba(0,0,0,.55); display: none; align-items: flex-end; justify-content: center; z-index: 10; }
   .backdrop.open { display: flex; }
+  /* janelinha de confirmação no estilo do app (no lugar do aviso do navegador) */
+  .dlg { z-index: 30; align-items: center; background: rgba(0, 0, 0, .65); }
+  .dlgbox { --bw: 26px; width: min(92%, 380px); padding: 2px 6px 4px; }
+  .dlgbox h2 { font: 400 26px/1.1 var(--display); margin: 0 0 8px; }
+  .dlgbox p { margin: 0 0 14px; white-space: pre-line; color: var(--paper-ink); }
+  .dlgbox .row2 { display: flex; gap: 8px; }
+  .dlgbox .row2 .btn { margin: 0; flex: 1; }
   .sheet { --bw: 26px; width: 100%; max-width: 480px; max-height: 90vh; overflow-y: auto; margin: 0 6px calc(6px + env(safe-area-inset-bottom)); padding: 0 4px; }
   .sheet h2 { font: 400 23px/1.1 var(--display); margin: 0 0 12px; }
   .sheet h2::first-letter { text-transform: uppercase; }
@@ -482,6 +489,21 @@ function setTab(name) {
 }
 
 /* ---------- ações sobre um dia ---------- */
+/* pergunta de confirmação no estilo do app; devolve uma Promise com true/false */
+function askConfirm(msg, { title = 'Tem certeza?', ok = 'OK', cancel = 'Cancelar', danger = false } = {}) {
+  return new Promise(resolve => {
+    const bd = document.createElement('div'); bd.className = 'backdrop dlg open'; bd.setAttribute('role', 'alertdialog'); bd.setAttribute('aria-modal', 'true');
+    bd.innerHTML = `<div class="dlgbox"><h2></h2><p></p><div class="row2"><button class="btn" data-r="0"></button><button class="btn ${danger ? '' : 'primary'}" data-r="1"></button></div></div>`;
+    bd.querySelector('h2').textContent = title; bd.querySelector('p').textContent = msg;
+    const [bc, bo] = bd.querySelectorAll('button'); bc.textContent = cancel; bo.textContent = ok;
+    if (danger) { bo.style.cssText = 'background:#b3262e;color:#fff;border-color:transparent'; }
+    const done = r => { document.removeEventListener('keydown', key); bd.remove(); resolve(r); };
+    const key = e => { if (e.key === 'Escape') done(false); };
+    bd.onclick = e => { if (e.target === bd) done(false); else if (e.target.dataset.r) done(e.target.dataset.r === '1'); };
+    document.addEventListener('keydown', key); document.body.appendChild(bd); bc.focus();
+  });
+}
+
 function closeSheet() { $('backdrop').classList.remove('open'); }
 function openSheet(d) {
   const ps = state.periods, t = todayISO();
@@ -492,7 +514,7 @@ function openSheet(d) {
     const i = ps.indexOf(cont);
     if (d !== cont.start) acts.push(['Mudar o início para este dia', () => mutate(l => { l[i].start = d; }, 'Início alterado')]);
     if (d >= cont.start && d !== cont.end) acts.push(['Marcar o fim neste dia', () => { const emAndamento = !cont.end; if (mutate(l => { l[i].end = d; }, 'Fim marcado') && emAndamento) sadMoment(); }]);
-    acts.push(['Remover este registro', () => { if (confirm('Remover este período do histórico?')) mutate(l => { l.splice(i, 1); }, 'Registro removido'); }, 'danger']);
+    acts.push(['Remover este registro', async () => { if (await askConfirm('Esse período vai sair do histórico.', { title: 'Remover registro?', ok: 'Remover', danger: true })) mutate(l => { l.splice(i, 1); }, 'Registro removido'); }, 'danger']);
   } else if (d > t) {
     note = 'Só é possível registrar dias até hoje.';
   } else if (open && d > open.start) {
@@ -615,7 +637,7 @@ function downloadBackup() {
 
 function importBackup(file) {
   const r = new FileReader();
-  r.onload = () => {
+  r.onload = async () => {
     try {
       const data = JSON.parse(r.result);
       if (!data || !Array.isArray(data.periods)) throw new Error();
@@ -628,7 +650,7 @@ function importBackup(file) {
       const last = list[list.length - 1];
       const faixa = last ? `, de ${fmt(list[0].start, true)} até ${fmt(last.end || last.start, true)}` : '';
       const nota = notes ? ` e ${plural(Object.keys(notes).length, 'anotação', 'anotações')}` : ' (sem anotações: as suas atuais serão mantidas)';
-      if (!confirm(`O arquivo tem ${plural(list.length, 'registro', 'registros')}${nota}${faixa}.\n\nSubstituir ${plural(state.periods.length, 'registro atual', 'registros atuais')} por esses?`)) return;
+      if (!(await askConfirm(`O arquivo tem ${plural(list.length, 'registro', 'registros')}${nota}${faixa}.\n\nSubstituir ${plural(state.periods.length, 'registro atual', 'registros atuais')} por esses?`, { title: 'Restaurar backup?', ok: 'Restaurar' }))) return;
       state.periods = list; if (notes) state.notes = notes; save();
       if (last) { const [y, m] = last.start.split('-').map(Number); view = { y, m: m - 1 }; }
       renderAll(); setTab('cal'); toast(`Backup restaurado: ${plural(list.length, 'registro', 'registros')}`);
