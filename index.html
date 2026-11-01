@@ -118,17 +118,26 @@
   .chara.happy .eyes-lids { animation: none; }
   .chara.wink .eyes-lids { animation: wink .95s ease-in-out both; }   /* remate: duas piscadinhas ao voltar ao normal */
   @keyframes wink { 0%, 100% { opacity: 0; } 12%, 24% { opacity: 1; } 38%, 52% { opacity: 0; } 64%, 78% { opacity: 1; } 90% { opacity: 0; } }
-  @keyframes lift {   /* sobe empolgado e balança a cabeça para cima e para baixo, depois se acalma */
+  @keyframes lift {   /* dança de alegria: pulinhos rápidos, balanço de um lado para o outro e leve amassadinho ao descer; depois se acalma */
     0% { transform: translateY(1px) rotate(0deg); }
-    8% { transform: translateY(-17px) rotate(-3.5deg); }
-    18% { transform: translateY(-6px) rotate(-1deg); }
-    28% { transform: translateY(-18px) rotate(-4deg); }
-    38% { transform: translateY(-6px) rotate(-1deg); }
-    48% { transform: translateY(-18px) rotate(-4deg); }
-    58% { transform: translateY(-7px) rotate(-1.5deg); }
-    68% { transform: translateY(-17px) rotate(-3.5deg); }
-    78% { transform: translateY(-9px) rotate(-2deg); }
-    88% { transform: translateY(-14px) rotate(-2.8deg); }
+    5% { transform: translate(-2px, -14%) rotate(-4deg) scale(1, 1.02); }
+    10% { transform: translate(2px, -5%) rotate(3deg) scale(1.02, .97); }
+    15% { transform: translate(-2px, -14%) rotate(-4deg) scale(1, 1.02); }
+    20% { transform: translate(2px, -5%) rotate(3deg) scale(1.02, .97); }
+    25% { transform: translate(-2px, -14%) rotate(-4deg) scale(1, 1.02); }
+    30% { transform: translate(2px, -5%) rotate(3deg) scale(1.02, .97); }
+    35% { transform: translate(-2px, -14%) rotate(-4deg) scale(1, 1.02); }
+    40% { transform: translate(2px, -5%) rotate(3deg) scale(1.02, .97); }
+    45% { transform: translate(-2px, -14%) rotate(-4deg) scale(1, 1.02); }
+    50% { transform: translate(2px, -5%) rotate(3deg) scale(1.02, .97); }
+    55% { transform: translate(-2px, -14%) rotate(-4deg) scale(1, 1.02); }
+    60% { transform: translate(2px, -5%) rotate(3deg) scale(1.02, .97); }
+    65% { transform: translate(-2px, -14%) rotate(-4deg) scale(1, 1.02); }
+    70% { transform: translate(2px, -5%) rotate(3deg) scale(1.02, .97); }
+    75% { transform: translate(-2px, -14%) rotate(-4deg) scale(1, 1.02); }
+    80% { transform: translate(2px, -5%) rotate(3deg) scale(1.02, .97); }
+    85% { transform: translate(-2px, -11%) rotate(-4deg) scale(1, 1.02); }
+    92% { transform: translate(0, -7%) rotate(-1.5deg); }
     100% { transform: translateY(1px) rotate(0deg); }
   }
   @keyframes idle { 0%, 100% { transform: translateY(1px) rotate(0deg); } 50% { transform: translateY(-5px) rotate(-1.3deg); } }
